@@ -6,7 +6,11 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-add_executable(unit_tests PetLogicTest.cpp)
+add_executable(unit_tests 
+    PetLogicTest.cpp 
+    CommandParserTest.cpp 
+)
+
 target_link_libraries(unit_tests app_logic gtest_main)
 
 include(GoogleTest)

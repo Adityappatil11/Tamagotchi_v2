@@ -9,8 +9,8 @@ TEST(PetLogicTest, HungerDecaysOverTime) {
     // Simulate 1 hour (3600 seconds) passing
     pet.OnTick(3600);
     
-    // Based on our 5%/hour decay rate, hunger should now be 95
-    EXPECT_NEAR(pet.GetStats().hunger, 95.0f, 0.01f);
+    // Based on our 8%/hour decay rate, hunger should now be 92
+    EXPECT_NEAR(pet.GetStats().hunger, 92.0f, 0.01f);
 }
 
 // Test: Verify feeding increases hunger correctly

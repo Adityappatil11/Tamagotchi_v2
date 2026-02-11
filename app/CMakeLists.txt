@@ -1,4 +1,7 @@
-add_library(app_logic src/PetLogic.cpp)
+add_library(app_logic 
+    src/PetLogic.cpp 
+    src/CommandParser.cpp 
+)
 
 #define include directories
 target_include_directories(app_logic PUBLIC include)

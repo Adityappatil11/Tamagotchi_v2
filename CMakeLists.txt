@@ -1,7 +1,11 @@
 cmake_minimum_required(VERSION 3.14)
 project(Tamagotchi_v2)
 
-#provide option to build static or dynamic libraries
+# enforce C++17
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Provide option to build static or dynamic libraries
 option(BUILD_SHARED_LIBS "build shared libraries" OFF)
 
 #adding core application library
