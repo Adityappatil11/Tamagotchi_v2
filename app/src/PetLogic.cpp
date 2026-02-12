@@ -91,13 +91,16 @@ void Tamagotchi::CheckEvolution() {
 
 Mood Tamagotchi::GetCurrentMood() const {
     if (stats.stage == LifeStage::DEAD) return Mood::SAD;
+
+    float score = CalculateMoodScore();
+
+    if (score > 85.0f) return Mood::HAPPY;
+    if (score > 60.0f) return Mood::NEUTRAL;
+    if (score > 40.0f) return Mood::BORED;
+    if (score > 20.0f) return Mood::SAD;
+    if (score > 5.0f)  return Mood::ANGRY;
     
-    if (stats.health < 30.0f || stats.happiness < 20.0f) return Mood::SAD;
-    if (stats.hunger < 20.0f) return Mood::ANGRY;
-    if (stats.boredom > 60.0f) return Mood::BORED;
-    if (stats.happiness > 80.0f) return Mood::HAPPY;
-    
-    return Mood::NEUTRAL;
+    return Mood::STRESSED;
 }
 
 void Tamagotchi::Play(float funValue) {
@@ -106,4 +109,15 @@ void Tamagotchi::Play(float funValue) {
     stats.boredom = std::max(0.0f, stats.boredom - funValue);
     stats.happiness = std::min(100.0f, stats.happiness + (funValue / 2.0f));
     stats.energy = std::max(0.0f, stats.energy - PetConfig::PLAY_COST_ENERGY); // Playing costs energy
+}
+
+float Tamagotchi::CalculateMoodScore() const {
+    // Weighted logic: Physical survival is 70% of the score, Mental state is 30%
+    float physicalNeeds = (stats.health * 0.6f) + (stats.hunger * 0.4f);
+    float mentalNeeds = (stats.happiness * 0.7f) - (stats.boredom * 0.3f);
+    
+    // Final score normalized to 0-100
+    float score = (physicalNeeds * 0.7f) + (mentalNeeds * 0.3f);
+    
+    return std::clamp(score, 0.0f, 100.0f);
 }

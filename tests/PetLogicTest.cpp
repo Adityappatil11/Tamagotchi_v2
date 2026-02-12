@@ -50,3 +50,18 @@ TEST(PetLogicTest, EnergeticPetLosesEnergyFaster) {
     // Energetic (1.5x decay) should have lower energy than Normal (1.0x decay)
     EXPECT_LT(activePet.GetStats().energy, normalPet.GetStats().energy);
 }
+
+TEST(PetLogicTest, MoodDegradesWithHunger) {
+    Tamagotchi pet;
+    
+    // Initial state should be HAPPY (Score near 100)
+    EXPECT_EQ(pet.GetCurrentMood(), Mood::HAPPY);
+    
+    // Simulate 12 hours of hunger decay (12 * 8 = 96% loss)
+    pet.OnTick(3600 * 12); 
+    
+    // Pet should no longer be happy
+    Mood currentMood = pet.GetCurrentMood();
+    EXPECT_NE(currentMood, Mood::HAPPY);
+    EXPECT_TRUE(currentMood == Mood::SAD || currentMood == Mood::ANGRY || currentMood == Mood::STRESSED);
+}
