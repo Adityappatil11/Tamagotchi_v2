@@ -35,3 +35,18 @@ TEST(PetLogicTest, SleepConservesEnergy) {
     // Hunger should have dropped by 4% (half of 8%)
     EXPECT_NEAR(pet.GetStats().hunger, initialHunger - 4.0f, 0.01f);
 }
+
+TEST(PetLogicTest, EnergeticPetLosesEnergyFaster) {
+    Tamagotchi normalPet;
+    Tamagotchi activePet;
+    
+    // Correctly modify the object state
+    activePet.SetPersonality(Personality::ENERGETIC);
+    
+    // Simulate 1 hour (3600 seconds)
+    activePet.OnTick(3600); 
+    normalPet.OnTick(3600);
+    
+    // Energetic (1.5x decay) should have lower energy than Normal (1.0x decay)
+    EXPECT_LT(activePet.GetStats().energy, normalPet.GetStats().energy);
+}

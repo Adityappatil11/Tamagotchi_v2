@@ -59,6 +59,24 @@ void Tamagotchi::UpdateVitality(uint32_t dt) {
         stats.health = 0;
         stats.stage = LifeStage::DEAD;
     }
+
+    //  Energy & Boredom Logic
+    float hours = dt / 3600.0f;
+
+    // personality modifiers
+    float energyMod = (stats.personality == Personality::ENERGETIC) ? 1.5f : 1.0f;
+
+    if (stats.isSleeping) {
+        stats.energy = std::min(100.0f, stats.energy + (10.0f * hours));
+    } else {
+        stats.energy = std::max(0.0f, stats.energy - (PetConfig::ENERGY_DECAY_BASE * hours * energyMod));
+        stats.boredom = std::min(100.0f, stats.boredom + (PetConfig::BOREDOM_INCREASE_RATE * hours));
+    }
+
+    //  Happiness Logic: Drops if hungry, dirty, or bored
+    if (stats.hunger < 20.0f || stats.cleanliness < 20.0f || stats.boredom > 70.0f) {
+        stats.happiness = std::max(0.0f, stats.happiness - (PetConfig::HAPPINESS_DECAY_BASE * hours));
+    }
 }
 
 void Tamagotchi::CheckEvolution() {
@@ -69,4 +87,23 @@ void Tamagotchi::CheckEvolution() {
     else if (stats.stage == LifeStage::BABY && stats.ageSeconds > 3600) {
         stats.stage = LifeStage::TEEN;
     }
+}
+
+Mood Tamagotchi::GetCurrentMood() const {
+    if (stats.stage == LifeStage::DEAD) return Mood::SAD;
+    
+    if (stats.health < 30.0f || stats.happiness < 20.0f) return Mood::SAD;
+    if (stats.hunger < 20.0f) return Mood::ANGRY;
+    if (stats.boredom > 60.0f) return Mood::BORED;
+    if (stats.happiness > 80.0f) return Mood::HAPPY;
+    
+    return Mood::NEUTRAL;
+}
+
+void Tamagotchi::Play(float funValue) {
+    if (stats.isSleeping || stats.stage == LifeStage::DEAD) return;
+    
+    stats.boredom = std::max(0.0f, stats.boredom - funValue);
+    stats.happiness = std::min(100.0f, stats.happiness + (funValue / 2.0f));
+    stats.energy = std::max(0.0f, stats.energy - PetConfig::PLAY_COST_ENERGY); // Playing costs energy
 }
