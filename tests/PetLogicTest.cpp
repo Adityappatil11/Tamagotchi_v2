@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include "PetLogic.h"
+#include "CommandParser.h"
 
 //verify hunger decay over time
 TEST(PetLogicTest, HungerDecaysOverTime) {
@@ -64,4 +65,40 @@ TEST(PetLogicTest, MoodDegradesWithHunger) {
     Mood currentMood = pet.GetCurrentMood();
     EXPECT_NE(currentMood, Mood::HAPPY);
     EXPECT_TRUE(currentMood == Mood::SAD || currentMood == Mood::ANGRY || currentMood == Mood::STRESSED);
+}
+
+TEST(PetLogicTest, ItemPurchaseAndUsage) {
+    Tamagotchi pet;
+    Item apple = {"Apple", ItemType::FOOD, 20.0f, 10};
+    
+    // 1. Test Purchase
+    bool bought = pet.BuyItem(apple);
+    EXPECT_TRUE(bought);
+    EXPECT_EQ(pet.GetStats().coins, 90);
+    EXPECT_EQ(pet.GetStats().inventory.size(), 1);
+
+    // 2. Test Usage
+    pet.OnTick(3600 * 5); // Make pet hungry
+    float hungerBefore = pet.GetStats().hunger;
+    
+    bool used = pet.UseItem("Apple");
+    EXPECT_TRUE(used);
+    EXPECT_GT(pet.GetStats().hunger, hungerBefore);
+    EXPECT_EQ(pet.GetStats().inventory.size(), 0);
+}
+
+TEST(CommandParserTest, HandlesUseItemWithArgument) {
+    Tamagotchi pet;
+    CommandParser parser(&pet);
+    
+    // Setup: Buy an item first
+    Item apple = {"Apple", ItemType::FOOD, 20.0f, 10};
+    pet.BuyItem(apple);
+    
+    // Action: Parse a string with an argument
+    bool success = parser.ParseAndExecute("Please use the apple");
+    
+    // Assert
+    EXPECT_TRUE(success);
+    EXPECT_EQ(pet.GetStats().inventory.size(), 0);
 }

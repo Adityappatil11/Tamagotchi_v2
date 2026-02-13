@@ -39,4 +39,27 @@ public:
     void execute() override { _pet->Clean(); }
 };
 
+class PlayCommand : public Command {
+    Tamagotchi* _pet;
+    float _funValue;
+public:
+    PlayCommand(Tamagotchi* pet, float fun) : _pet(pet), _funValue(fun) {}
+    void execute() override { _pet->Play(_funValue); }
+};
+
+class UseItemCommand : public Command {
+    Tamagotchi* _pet;
+public:
+    explicit UseItemCommand(Tamagotchi* pet) : _pet(pet) {}
+    
+    // We'll overload execute or use a specific method for parameterized commands
+    void execute() override { 
+        // Default behavior if no item specified
+    }
+
+    void executeWithParam(const std::string& itemName) {
+        _pet->UseItem(itemName);
+    }
+};
+
 #endif // COMMAND_H

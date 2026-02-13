@@ -121,3 +121,43 @@ float Tamagotchi::CalculateMoodScore() const {
     
     return std::clamp(score, 0.0f, 100.0f);
 }
+
+/**
+ * @brief Purchases an item if the pet has enough coins.
+ */
+bool Tamagotchi::BuyItem(const Item& item) {
+    if (stats.coins >= item.cost) {
+        stats.coins -= item.cost;
+        stats.inventory.push_back(item);
+        return true;
+    }
+    return false;
+}
+
+/**
+ * @brief Uses an item from the inventory and applies its effects.
+ */
+bool Tamagotchi::UseItem(const std::string& itemName) {
+    if (stats.stage == LifeStage::DEAD || stats.isSleeping) return false;
+
+    std::string searchName = itemName;
+    std::transform(searchName.begin(), searchName.end(), searchName.begin(), ::tolower);
+
+    auto it = std::find_if(stats.inventory.begin(), stats.inventory.end(),
+        [&](const Item& i) {
+            std::string currentItemName = i.name;
+            std::transform(currentItemName.begin(), currentItemName.end(), currentItemName.begin(), ::tolower);
+            return currentItemName == searchName;
+        });
+
+    if (it != stats.inventory.end()) {
+        // Apply effects
+        if (it->type == ItemType::FOOD) Feed(it->effectValue);
+        else if (it->type == ItemType::TOY) Play(it->effectValue);
+        else if (it->type == ItemType::MEDICINE) Heal(it->effectValue);
+
+        stats.inventory.erase(it);
+        return true;
+    }
+    return false;
+}
